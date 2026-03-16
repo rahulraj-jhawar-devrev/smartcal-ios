@@ -16,8 +16,8 @@ struct SettingsView: View {
                     if viewModel.constraints.gymEnabled {
                         TimePickerRow(label: "Gym time", time: $viewModel.constraints.gymTime)
                         Stepper(
-                            "Duration: \(viewModel.constraints.gymDurationMinutes) min",
-                            value: $viewModel.constraints.gymDurationMinutes,
+                            "Duration: \(viewModel.constraints.gymDurationMins) min",
+                            value: $viewModel.constraints.gymDurationMins,
                             in: 15...180,
                             step: 15
                         )
@@ -27,8 +27,8 @@ struct SettingsView: View {
                 Section("Meals") {
                     TimePickerRow(label: "Lunch time", time: $viewModel.constraints.lunchTime)
                     Stepper(
-                        "Lunch duration: \(viewModel.constraints.lunchDurationMinutes) min",
-                        value: $viewModel.constraints.lunchDurationMinutes,
+                        "Lunch duration: \(viewModel.constraints.lunchDurationMins) min",
+                        value: $viewModel.constraints.lunchDurationMins,
                         in: 15...120,
                         step: 15
                     )

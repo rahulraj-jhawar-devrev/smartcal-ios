@@ -364,3 +364,67 @@ visibility via `viewModel.saveSuccess`, so the transition belongs on the
 Passing a constant literal like `true` or `42` is always a bug — it means
 "never animate". Transitions on conditional views should be placed at the
 branching point (the `if`), not deep inside the view being shown.
+
+---
+
+### Bug 7: iOS models didn't match the actual backend JSON (app was completely broken)
+
+**Symptom:** Tasks showed 0 min duration. Schedule/timeline never rendered.
+Settings crashed on load. Everything silently failed.
+
+**Root cause:** The iOS models were written based on assumed field names, not
+the actual running backend. There were 5 mismatches:
+
+| Field | Backend sent | iOS expected | Effect |
+|---|---|---|---|
+| Task duration | `duration_mins` | `duration_minutes` | Always decoded as 0 |
+| Schedule times | `start`, `end` | `start_time`, `end_time` | Timeline decoded nothing |
+| Schedule block id | not sent | required `id: String` | Entire schedule decode failed |
+| Constraint durations | `gym_duration_mins` | `gym_duration_minutes` | Always 0 |
+| Constraint types | strings (`"true"`, `"60"`) | `Bool`, `Int` | Settings crashed |
+
+**How to catch this earlier:** Before writing iOS models, read the actual API
+response with `curl` and check every field name and type. Don't assume.
+
+```bash
+curl -s https://your-api/tasks | jq '.[0]'
+curl -s https://your-api/constraints | jq '.'
+curl -s https://your-api/plan/today -X POST | jq '.blocks[0]'
+```
+
+**The constraints problem was subtle:** The backend stores all constraints as
+string key-value pairs in SQLite (because it's a generic key-value store).
+So even `gym_enabled` comes back as the string `"false"`, and `gym_duration_mins`
+comes back as `"60"`. Swift's default `Codable` can't coerce strings to `Bool`
+or `Int` — it throws a type mismatch error.
+
+**Fix:** Custom `init(from:)` and `encode(to:)` on `Constraints` that manually
+convert between Swift types and their string representations:
+
+```swift
+// Decode: string → typed
+let gymEnabledStr = try c.decode(String.self, forKey: .gymEnabled)
+gymEnabled = gymEnabledStr == "true"
+
+let gymDurStr = try c.decode(String.self, forKey: .gymDurationMins)
+gymDurationMins = Int(gymDurStr) ?? 60
+
+// Encode: typed → string (so backend stores them correctly)
+try c.encode(gymEnabled ? "true" : "false", forKey: .gymEnabled)
+try c.encode(String(gymDurationMins), forKey: .gymDurationMins)
+```
+
+**The `id` problem:** Swift's `Identifiable` protocol requires a stable `id`
+on every element in a `ForEach`. The backend doesn't send an id on schedule
+blocks. Fix: derive a synthetic id from the block's data:
+
+```swift
+var id: String { "\(start)-\(end)-\(label)" }
+```
+
+This is a computed property, not a stored one, so it doesn't need a CodingKey.
+
+**Lesson:** Always verify your models against the real running API before
+building any UI on top of them. A single field name mismatch will cause silent
+decode failures — Swift won't crash, it'll just return nil or 0 and you'll
+spend hours wondering why the UI is empty.

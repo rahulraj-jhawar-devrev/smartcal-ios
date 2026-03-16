@@ -8,7 +8,7 @@ struct AddTaskView: View {
     @State private var title = ""
     @State private var hasDeadline = false
     @State private var deadline = Date().addingTimeInterval(86400)
-    @State private var durationMinutes = 30
+    @State private var durationMins = 30
     @State private var priority = "medium"
 
     private let priorities = ["low", "medium", "high"]
@@ -26,7 +26,7 @@ struct AddTaskView: View {
                         DatePicker("Deadline", selection: $deadline, in: Date()..., displayedComponents: .date)
                     }
 
-                    Stepper("Duration: \(durationMinutes) min", value: $durationMinutes, in: 15...480, step: 15)
+                    Stepper("Duration: \(durationMins) min", value: $durationMins, in: 15...480, step: 15)
 
                     Picker("Priority", selection: $priority) {
                         ForEach(priorities, id: \.self) { p in
@@ -50,7 +50,7 @@ struct AddTaskView: View {
                         onAdd(NewTask(
                             title: title,
                             deadline: deadlineString,
-                            durationMinutes: durationMinutes,
+                            durationMins: durationMins,
                             priority: priority
                         ))
                         dismiss()

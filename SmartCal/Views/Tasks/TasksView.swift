@@ -111,7 +111,7 @@ struct TaskRowView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                    Label("\(task.durationMinutes) min", systemImage: "clock")
+                    Label("\(task.durationMins) min", systemImage: "clock")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                     priorityBadge
