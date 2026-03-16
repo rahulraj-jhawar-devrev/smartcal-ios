@@ -121,6 +121,11 @@ struct TaskRowView: View {
                     Label(formattedDuration(task.durationMins), systemImage: "clock")
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                    if task.repeatDays > 0 {
+                        Label("\(task.repeatDays)d", systemImage: "arrow.clockwise")
+                            .font(.caption)
+                            .foregroundStyle(.purple)
+                    }
                     priorityBadge
                 }
             }
@@ -130,16 +135,17 @@ struct TaskRowView: View {
 
     private var priorityBadge: some View {
         let color: Color = switch task.priority {
-        case "high": .red
-        case "medium": .orange
-        default: .blue
+        case "p0": .red
+        case "p1": .orange
+        case "p2": .blue
+        default:   .secondary
         }
-        return Text(task.priority)
+        return Text(task.priority.uppercased())
             .font(.caption2)
-            .fontWeight(.medium)
+            .fontWeight(.semibold)
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
-            .background(color.opacity(0.15))
+            .background(color.opacity(0.12))
             .foregroundStyle(color)
             .clipShape(Capsule())
     }
