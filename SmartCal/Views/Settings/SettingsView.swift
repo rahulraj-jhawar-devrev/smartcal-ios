@@ -8,7 +8,6 @@ struct SettingsView: View {
         NavigationStack {
             Form {
                 sleepSection
-                deepWorkSection
                 dailyRoutinesSection
                 saveSection
                 historySection
@@ -42,27 +41,6 @@ struct SettingsView: View {
         Section("Sleep schedule") {
             TimePickerRow(label: "Wake time",  time: $viewModel.constraints.wakeTime)
             TimePickerRow(label: "Sleep time", time: $viewModel.constraints.sleepTime)
-        }
-    }
-
-    private var deepWorkSection: some View {
-        Section {
-            ForEach($viewModel.constraints.deepWorkSessions) { $session in
-                DeepWorkSessionRow(session: $session)
-            }
-            .onDelete { viewModel.constraints.deepWorkSessions.remove(atOffsets: $0) }
-            Button {
-                viewModel.constraints.deepWorkSessions
-                    .append(DeepWorkSession(start: "09:00", end: "11:00"))
-            } label: {
-                Label("Add window", systemImage: "plus")
-                    .font(.subheadline)
-            }
-        } header: {
-            Text("Deep work windows")
-        } footer: {
-            Text("Each window is a focused block where high-priority tasks are placed.")
-                .font(.caption)
         }
     }
 
@@ -110,24 +88,6 @@ struct SettingsView: View {
     }
 }
 
-// MARK: - DeepWorkSessionRow
-
-struct DeepWorkSessionRow: View {
-    @Binding var session: DeepWorkSession
-
-    var body: some View {
-        HStack(spacing: 4) {
-            Image(systemName: "brain.head.profile")
-                .foregroundStyle(.purple)
-                .frame(width: 24)
-            TimePickerRow(label: "Start", time: $session.start)
-            Text("–")
-                .foregroundStyle(.secondary)
-            TimePickerRow(label: "End",   time: $session.end)
-        }
-    }
-}
-
 // MARK: - RoutineRow
 
 struct RoutineRow: View {
@@ -137,8 +97,6 @@ struct RoutineRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                typeIcon
-                    .frame(width: 24)
                 Toggle(routine.name, isOn: $routine.enabled)
                     .tint(.purple)
                 Spacer()
@@ -169,15 +127,6 @@ struct RoutineRow: View {
         .padding(.vertical, 2)
         .animation(.spring(duration: 0.2), value: isExpanded)
     }
-
-    @ViewBuilder
-    private var typeIcon: some View {
-        switch routine.routineType {
-        case "meal":  Image(systemName: "fork.knife").foregroundStyle(.orange)
-        case "fixed": Image(systemName: "figure.run").foregroundStyle(.blue)
-        default:      Image(systemName: "star").foregroundStyle(.purple)
-        }
-    }
 }
 
 // MARK: - AddRoutineSheet
@@ -189,24 +138,14 @@ struct AddRoutineSheet: View {
     @State private var name = ""
     @State private var time = "08:00"
     @State private var durationMins = 30
-    @State private var routineType = "fixed"
-
-    private let types = [("fixed", "Fixed", "figure.run"),
-                         ("meal",  "Meal",  "fork.knife"),
-                         ("task",  "Focus", "brain.head.profile")]
 
     var body: some View {
         NavigationStack {
             Form {
                 Section {
-                    TextField("Name (e.g. Morning walk)", text: $name)
+                    TextField("Name (e.g. Morning walk, Gym, Reading…)", text: $name)
                 }
-                Section("Details") {
-                    Picker("Type", selection: $routineType) {
-                        ForEach(types, id: \.0) { type in
-                            Label(type.1, systemImage: type.2).tag(type.0)
-                        }
-                    }
+                Section {
                     TimePickerRow(label: "Time", time: $time)
                     Stepper("Duration: \(durationMins) min",
                             value: $durationMins, in: 5...180, step: 5)
@@ -226,7 +165,7 @@ struct AddRoutineSheet: View {
                             time: time,
                             durationMins: durationMins,
                             enabled: true,
-                            routineType: routineType
+                            routineType: "fixed"
                         ))
                         dismiss()
                     }

@@ -47,12 +47,11 @@ struct TodayView: View {
         Section {
             ForEach(vm.dailyAnchors) { anchor in
                 HStack(spacing: 12) {
-                    anchorIcon(for: anchor.routineType)
-                        .frame(width: 22)
                     Text(anchor.time)
                         .font(.caption)
                         .fontDesign(.monospaced)
                         .foregroundStyle(.tertiary)
+                        .frame(width: 38, alignment: .leading)
                     Text(anchor.name)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
@@ -67,15 +66,6 @@ struct TodayView: View {
             Label("Fixed schedule", systemImage: "clock")
                 .font(.footnote).fontWeight(.semibold)
                 .foregroundStyle(.secondary)
-        }
-    }
-
-    @ViewBuilder
-    private func anchorIcon(for type: String) -> some View {
-        switch type {
-        case "meal":  Image(systemName: "fork.knife").foregroundStyle(.orange).font(.caption)
-        case "fixed": Image(systemName: "figure.run").foregroundStyle(.blue).font(.caption)
-        default:      Image(systemName: "brain.head.profile").foregroundStyle(.purple).font(.caption)
         }
     }
 
