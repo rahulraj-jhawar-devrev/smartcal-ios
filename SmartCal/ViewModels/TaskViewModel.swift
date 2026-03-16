@@ -30,7 +30,7 @@ class TaskViewModel {
 
     func completeTask(id: Int) async {
         do {
-            let updated = try await APIClient.shared.updateTask(id: id, patch: TaskPatch(status: "done", title: nil, deadline: nil, durationMins: nil, priority: nil))
+            let updated = try await APIClient.shared.updateTask(id: id, patch: TaskPatch(status: "done", title: nil, notes: nil, deadline: nil, durationMins: nil, priority: nil))
             if let index = tasks.firstIndex(where: { $0.id == id }) {
                 tasks[index] = updated
             }

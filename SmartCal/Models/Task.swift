@@ -3,6 +3,7 @@ import Foundation
 struct SCTask: Codable, Identifiable {
     let id: Int
     var title: String
+    var notes: String?
     var deadline: String?
     var durationMins: Int
     var priority: String
@@ -10,7 +11,7 @@ struct SCTask: Codable, Identifiable {
     var createdAt: String
 
     enum CodingKeys: String, CodingKey {
-        case id, title, deadline, priority, status
+        case id, title, notes, deadline, priority, status
         case durationMins = "duration_mins"
         case createdAt = "created_at"
     }
@@ -18,12 +19,13 @@ struct SCTask: Codable, Identifiable {
 
 struct NewTask: Codable {
     let title: String
+    let notes: String?
     let deadline: String?
     let durationMins: Int
     let priority: String
 
     enum CodingKeys: String, CodingKey {
-        case title, deadline, priority
+        case title, notes, deadline, priority
         case durationMins = "duration_mins"
     }
 }
@@ -31,12 +33,13 @@ struct NewTask: Codable {
 struct TaskPatch: Codable {
     let status: String?
     let title: String?
+    let notes: String?
     let deadline: String?
     let durationMins: Int?
     let priority: String?
 
     enum CodingKeys: String, CodingKey {
-        case status, title, deadline, priority
+        case status, title, notes, deadline, priority
         case durationMins = "duration_mins"
     }
 }

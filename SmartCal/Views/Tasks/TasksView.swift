@@ -99,11 +99,18 @@ struct TaskRowView: View {
             }
             .buttonStyle(.plain)
 
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 3) {
                 Text(task.title)
                     .font(.body)
                     .strikethrough(task.status == "done")
                     .foregroundStyle(task.status == "done" ? .secondary : .primary)
+
+                if let notes = task.notes, !notes.isEmpty {
+                    Text(notes)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
 
                 HStack(spacing: 8) {
                     if let deadline = task.deadline {
@@ -111,7 +118,7 @@ struct TaskRowView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                    Label("\(task.durationMins) min", systemImage: "clock")
+                    Label(formattedDuration(task.durationMins), systemImage: "clock")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                     priorityBadge
@@ -135,6 +142,14 @@ struct TaskRowView: View {
             .background(color.opacity(0.15))
             .foregroundStyle(color)
             .clipShape(Capsule())
+    }
+
+    private func formattedDuration(_ mins: Int) -> String {
+        let hours = mins / 60
+        let rem   = mins % 60
+        if hours == 0 { return "\(rem) min" }
+        if rem   == 0 { return "\(hours) hr" }
+        return "\(hours) hr \(rem) min"
     }
 
     private func formatDeadline(_ deadline: String) -> String {
