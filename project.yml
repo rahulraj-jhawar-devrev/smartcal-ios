@@ -10,19 +10,12 @@ settings:
     INFOPLIST_FILE: SmartCal/Info.plist
     PRODUCT_BUNDLE_IDENTIFIER: com.rahulraj.SmartCal
     DEVELOPMENT_TEAM: ""
-packages:
-  CalendarKit:
-    url: https://github.com/richardtop/CalendarKit.git
-    from: "1.0.0"
 targets:
   SmartCal:
     type: application
     platform: iOS
     sources:
       - path: SmartCal
-    dependencies:
-      - package: CalendarKit
-        product: CalendarKit
     settings:
       base:
         INFOPLIST_FILE: SmartCal/Info.plist
