@@ -6,6 +6,7 @@ enum HTTPMethod: String {
 
 enum Endpoint {
     case getTasks
+    case getCompletedTasks
     case createTask
     case updateTask(id: Int)
     case deleteTask(id: Int)
@@ -19,7 +20,7 @@ enum Endpoint {
 
     var path: String {
         switch self {
-        case .getTasks, .createTask: return "/tasks"
+        case .getTasks, .createTask, .getCompletedTasks: return "/tasks"
         case .updateTask(let id), .deleteTask(let id): return "/tasks/\(id)"
         case .getConstraints, .updateConstraints: return "/constraints"
         case .planToday: return "/plan/today"
@@ -30,7 +31,7 @@ enum Endpoint {
 
     var method: HTTPMethod {
         switch self {
-        case .getTasks, .getConstraints, .getPlan: return .GET
+        case .getTasks, .getCompletedTasks, .getConstraints, .getPlan: return .GET
         case .createTask, .planToday, .replan: return .POST
         case .updateConstraints: return .PUT
         case .updateTask: return .PATCH
@@ -39,9 +40,11 @@ enum Endpoint {
     }
 
     func urlRequest(body: Data? = nil) throws -> URLRequest {
-        guard let url = URL(string: Self.baseURL + path) else {
-            throw APIError.invalidURL
+        var components = URLComponents(string: Self.baseURL + path)
+        if case .getCompletedTasks = self {
+            components?.queryItems = [URLQueryItem(name: "status", value: "done")]
         }
+        guard let url = components?.url else { throw APIError.invalidURL }
         var request = URLRequest(url: url)
         request.httpMethod = method.rawValue
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")

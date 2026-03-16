@@ -11,6 +11,7 @@ struct SettingsView: View {
                 deepWorkSection
                 dailyRoutinesSection
                 saveSection
+                historySection
             }
             .navigationTitle("Settings")
             .task { await viewModel.load() }
@@ -82,6 +83,14 @@ struct SettingsView: View {
         } footer: {
             Text("Fixed daily blocks (gym, meals, meditation, etc.). Swipe left to remove.")
                 .font(.caption)
+        }
+    }
+
+    private var historySection: some View {
+        Section {
+            NavigationLink(destination: TaskHistoryView()) {
+                Label("Task history", systemImage: "checkmark.circle")
+            }
         }
     }
 

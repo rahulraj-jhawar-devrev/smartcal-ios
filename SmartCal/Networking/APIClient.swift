@@ -13,6 +13,10 @@ actor APIClient {
         try await fetch(endpoint: .getTasks)
     }
 
+    func getCompletedTasks() async throws -> [SCTask] {
+        try await fetch(endpoint: .getCompletedTasks)
+    }
+
     func createTask(_ task: NewTask) async throws -> SCTask {
         let body = try encoder.encode(task)
         return try await fetch(endpoint: .createTask, body: body)
