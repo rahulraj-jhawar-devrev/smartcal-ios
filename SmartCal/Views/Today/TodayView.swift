@@ -60,7 +60,9 @@ struct TodayView: View {
             .navigationTitle("Today · \(todayTitle)")
             .navigationBarTitleDisplayMode(.inline)
             .task { await viewModel.loadTodayPlan() }
-            .errorBanner(message: viewModel.errorMessage)
+            .errorBanner(message: viewModel.errorMessage) {
+                viewModel.errorMessage = nil
+            }
         }
     }
 

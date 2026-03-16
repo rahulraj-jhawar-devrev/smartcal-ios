@@ -31,7 +31,9 @@ struct TasksView: View {
                 }
             }
             .task { await viewModel.load() }
-            .errorBanner(message: viewModel.errorMessage)
+            .errorBanner(message: viewModel.errorMessage) {
+                viewModel.errorMessage = nil
+            }
         }
     }
 

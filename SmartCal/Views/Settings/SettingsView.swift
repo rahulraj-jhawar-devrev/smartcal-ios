@@ -59,7 +59,9 @@ struct SettingsView: View {
             }
             .navigationTitle("Settings")
             .task { await viewModel.load() }
-            .errorBanner(message: viewModel.errorMessage)
+            .errorBanner(message: viewModel.errorMessage) {
+                viewModel.errorMessage = nil
+            }
             .overlay {
                 if viewModel.saveSuccess {
                     SaveSuccessToast()
@@ -78,34 +80,22 @@ struct TimePickerRow: View {
     let label: String
     @Binding var time: String
 
-    @State private var date: Date = Date()
-    private var isInitialized = false
-
-    init(label: String, time: Binding<String>) {
-        self.label = label
-        self._time = time
-        self._date = State(initialValue: Self.dateFromTimeString(time.wrappedValue))
-    }
+    // Static formatters — allocated once, not on every render/drag tick
+    private static let displayFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "HH:mm"
+        return f
+    }()
 
     var body: some View {
         DatePicker(
             label,
             selection: Binding(
-                get: { Self.dateFromTimeString(time) },
-                set: { newDate in
-                    let formatter = DateFormatter()
-                    formatter.dateFormat = "HH:mm"
-                    time = formatter.string(from: newDate)
-                }
+                get: { Self.displayFormatter.date(from: time) ?? Date() },
+                set: { time = Self.displayFormatter.string(from: $0) }
             ),
             displayedComponents: .hourAndMinute
         )
-    }
-
-    static func dateFromTimeString(_ timeString: String) -> Date {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm"
-        return formatter.date(from: timeString) ?? Date()
     }
 }
 
@@ -127,7 +117,6 @@ struct SaveSuccessToast: View {
             .shadow(radius: 4)
             .padding(.bottom, 32)
         }
-        .transition(.move(edge: .bottom).combined(with: .opacity))
-        .animation(.spring, value: true)
+        // transition is applied by the parent overlay — no animation modifier needed here
     }
 }

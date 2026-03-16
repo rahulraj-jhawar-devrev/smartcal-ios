@@ -4,6 +4,10 @@ struct TimelineView: View {
     let schedule: DaySchedule
     let hourHeight: CGFloat = 80
 
+    // Updates every 60s so the red line actually moves
+    @State private var now = Date()
+    private let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
+
     private let startHour = 6
     private let endHour = 24
     private var totalHours: Int { endHour - startHour }
@@ -12,14 +16,9 @@ struct TimelineView: View {
         ScrollViewReader { proxy in
             ScrollView {
                 ZStack(alignment: .topLeading) {
-                    // Hour grid lines + labels
                     hourGrid
-
-                    // Schedule blocks (offset by left column)
                     blocksLayer
                         .padding(.leading, 44)
-
-                    // Current time indicator
                     currentTimeIndicator
                         .padding(.leading, 44)
                 }
@@ -34,6 +33,7 @@ struct TimelineView: View {
                 }
             }
         }
+        .onReceive(timer) { now = $0 }
     }
 
     private var hourGrid: some View {
@@ -59,8 +59,8 @@ struct TimelineView: View {
     private var blocksLayer: some View {
         ZStack(alignment: .topLeading) {
             ForEach(schedule.blocks) { block in
-                let yOffset = CGFloat(block.startMinutes - startHour * 60) / 60.0 * hourHeight
                 if block.startMinutes >= startHour * 60 {
+                    let yOffset = CGFloat(block.startMinutes - startHour * 60) / 60.0 * hourHeight
                     BlockView(block: block, hourHeight: hourHeight)
                         .padding(.trailing, 8)
                         .offset(y: yOffset)
@@ -71,7 +71,6 @@ struct TimelineView: View {
     }
 
     private var currentTimeIndicator: some View {
-        let now = Date()
         let calendar = Calendar.current
         let hour = calendar.component(.hour, from: now)
         let minute = calendar.component(.minute, from: now)

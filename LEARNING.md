@@ -217,3 +217,150 @@ xcodegen generate   # creates SmartCal.xcodeproj from project.yml
 
 Add `.xcodeproj` to `.gitignore` if working in a team (each dev generates locally).
 For a solo project, committing it is fine.
+
+---
+
+## Bug journal — mistakes made and fixed
+
+### Bug 1: Swift 6 data race errors on ViewModels
+
+**Symptom:** Compiler error on every `.task { await viewModel.load() }`:
+```
+error: sending 'self.viewModel' risks causing data races
+```
+
+**Why it happened:** Swift 6 introduced strict concurrency. SwiftUI views run on
+`@MainActor`. The `@Observable` ViewModels had no actor annotation, so Swift
+couldn't prove it was safe to call their `async` methods from the main actor.
+
+**Fix:** Add `@MainActor` to every ViewModel class:
+```swift
+@MainActor
+@Observable
+class TaskViewModel { ... }
+```
+
+This pins the ViewModel to the main thread. No data race possible — everything
+is on the same actor. The compiler is satisfied.
+
+**Lesson:** In Swift 6, any class that's owned and mutated by a SwiftUI view
+should be `@MainActor`. Make it the default for ViewModels.
+
+---
+
+### Bug 2: Dead properties in TimePickerRow
+
+**Symptom:** `TimePickerRow` had two properties that were declared but never read:
+```swift
+@State private var date: Date = Date()   // never used
+private var isInitialized = false         // never used
+```
+
+**Why it happened:** Early draft had the DatePicker bound to `@State var date`,
+then it was refactored to use a computed `Binding` directly from the `time` string.
+The old properties were left behind.
+
+**Fix:** Delete both. The body already derived everything from `time` via `Binding`.
+
+**Lesson:** Read your own structs top to bottom before shipping. Unused `@State`
+properties still allocate storage and can cause confusing re-renders.
+
+---
+
+### Bug 3: DateFormatter allocated on every picker drag
+
+**Symptom:** Inside `TimePickerRow.body`, a new `DateFormatter` was being
+constructed inside the `Binding`'s setter — which fires continuously as the
+user drags the time picker wheel.
+
+```swift
+// BAD — runs on every drag tick
+set: { newDate in
+    let formatter = DateFormatter()   // expensive allocation
+    formatter.dateFormat = "HH:mm"
+    time = formatter.string(from: newDate)
+}
+```
+
+**Fix:** Cache as a `static let` on the struct — allocated once ever:
+```swift
+private static let displayFormatter: DateFormatter = {
+    let f = DateFormatter()
+    f.dateFormat = "HH:mm"
+    return f
+}()
+```
+
+**Lesson:** `DateFormatter`, `NumberFormatter`, `JSONDecoder` etc. are expensive
+to create. Always make them `static let` or store them as a property, never
+allocate them inside a function/closure that runs frequently.
+
+---
+
+### Bug 4: Current time indicator frozen at launch time
+
+**Symptom:** The red "current time" line on the timeline was computed once
+when the view loaded and never updated. It showed the correct position at
+open time, then stayed there even as minutes passed.
+
+**Why it happened:** The `currentTimeIndicator` computed var read `Date()`
+directly. SwiftUI only re-evaluates a computed var when state changes — with no
+state tied to the clock, it never re-evaluated.
+
+**Fix:** Add a `@State var now = Date()` and drive it with a `Timer`:
+```swift
+@State private var now = Date()
+private let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
+
+// in body:
+.onReceive(timer) { now = $0 }
+
+// currentTimeIndicator reads `now` instead of Date()
+```
+
+Now SwiftUI sees `now` change every 60 seconds and re-renders the indicator.
+
+**Lesson:** `Date()` in a SwiftUI computed property is evaluated once at render
+time. If you want live-updating time, you need explicit state + a timer.
+
+---
+
+### Bug 5: Error banners couldn't be dismissed
+
+**Symptom:** Once an error appeared (e.g. network failure), the red banner
+stayed on screen forever with no way to dismiss it.
+
+**Fix:** Added an optional `onDismiss` closure to the `errorBanner` modifier,
+and an ✕ button in the banner that calls it. Call sites pass a closure that
+sets `viewModel.errorMessage = nil`:
+
+```swift
+.errorBanner(message: viewModel.errorMessage) {
+    viewModel.errorMessage = nil
+}
+```
+
+**Lesson:** Any UI that surfaces an error needs a way to clear it. The pattern
+here — error as `String?` in the ViewModel, nil to clear — works cleanly
+because `@Observable` automatically re-renders the banner away when it becomes nil.
+
+---
+
+### Bug 6: `.animation(.spring, value: true)` does nothing
+
+**Symptom:** The `SaveSuccessToast` had this:
+```swift
+.animation(.spring, value: true)
+```
+
+`true` is a constant — it never changes — so SwiftUI never sees a value change
+and never triggers the animation. The toast appeared/disappeared with no transition.
+
+**Fix:** Remove the modifier from the toast itself. The parent `overlay` drives
+visibility via `viewModel.saveSuccess`, so the transition belongs on the
+`if viewModel.saveSuccess { SaveSuccessToast() }` level, handled by the overlay.
+
+**Lesson:** `.animation(_:value:)` only fires when `value` changes between renders.
+Passing a constant literal like `true` or `42` is always a bug — it means
+"never animate". Transitions on conditional views should be placed at the
+branching point (the `if`), not deep inside the view being shown.
