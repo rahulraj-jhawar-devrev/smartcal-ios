@@ -220,6 +220,116 @@ For a solo project, committing it is fine.
 
 ---
 
+## Simulator — install, reinstall, and nuke
+
+### The normal loop
+Every time you change code, just hit **`Cmd+R`** in Xcode. It builds, installs, and launches automatically. You never need to manually uninstall first.
+
+### Uninstall from the simulator
+**From command line:**
+```bash
+SIMCTL=/Applications/Xcode.app/Contents/Developer/usr/bin/simctl
+$SIMCTL uninstall <UDID> com.rahulraj.SmartCal
+```
+
+**From the Simulator app:**
+Long press the app icon → Remove App → Delete App. Same gesture as a real iPhone.
+
+Find your simulator UDID with:
+```bash
+/Applications/Xcode.app/Contents/Developer/usr/bin/simctl list devices available | grep "iPhone 16 "
+```
+
+### Reinstall after uninstall
+```bash
+SIMCTL=/Applications/Xcode.app/Contents/Developer/usr/bin/simctl
+APP="$HOME/Library/Developer/Xcode/DerivedData/SmartCal-*/Build/Products/Debug-iphonesimulator/SmartCal.app"
+$SIMCTL install <UDID> $APP
+$SIMCTL launch <UDID> com.rahulraj.SmartCal
+```
+Or just `Cmd+R` in Xcode — same result, less typing.
+
+### Nuke the entire simulator (erase all content)
+Simulator app menu → **Device → Erase All Content and Settings**
+
+Wipes every app, all data, all settings. Good when something is deeply broken and a reinstall didn't fix it.
+
+### Nuke DerivedData (fixes Xcode cache weirdness)
+```bash
+rm -rf ~/Library/Developer/Xcode/DerivedData/SmartCal-*
+```
+Then `Cmd+R` for a full clean build from scratch. Use when the app behaves strangely after code changes and a normal rebuild doesn't fix it.
+
+### On a real iPhone
+Long press app icon → Remove App → Delete App. Reinstall by connecting to Mac, selecting the device in Xcode's destination picker, and hitting `Cmd+R`. Requires your Apple ID set in Signing & Capabilities.
+
+---
+
+## Why the LLM planner was broken (and how tool_use fixes it)
+
+### What was wrong
+The original planner used `claude-haiku-4-5` with `thinking: { type: 'enabled' }` — but **Haiku does not support extended thinking**. Only Sonnet and Opus do. This caused garbage output on every planning request.
+
+On top of that, it asked the model to return raw JSON via the prompt and then parsed it with `JSON.parse`. This is fragile — any stray character, markdown fence, or explanation breaks the parse.
+
+### The fix: tool_use for structured output
+Instead of asking the model to "return JSON", define a tool with a strict schema and force the model to call it:
+
+```typescript
+const scheduleTool: Anthropic.Tool = {
+  name: 'save_schedule',
+  input_schema: {
+    type: 'object',
+    properties: {
+      blocks: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            start:   { type: 'string' },
+            end:     { type: 'string' },
+            type:    { type: 'string', enum: ['fixed', 'task', 'buffer', 'meal'] },
+            label:   { type: 'string' },
+            task_id: { type: ['number', 'null'] },
+          },
+          required: ['start', 'end', 'type', 'label', 'task_id'],
+        },
+      },
+      reasoning: { type: 'string' },
+    },
+    required: ['blocks', 'reasoning'],
+  },
+};
+
+// Force the model to call it
+const response = await client.messages.create({
+  model: 'claude-sonnet-4-6',
+  tools: [scheduleTool],
+  tool_choice: { type: 'auto' },
+  messages: [{ role: 'user', content: prompt }],
+});
+
+// Extract the result — guaranteed to match the schema
+const toolUse = response.content.find(b => b.type === 'tool_use');
+const result = toolUse.input as GeneratedSchedule;
+```
+
+The Anthropic SDK validates the output against the schema before returning it to your code. You get typed data, not a string to parse.
+
+**Lesson:** For any LLM call where you need structured output, always use `tool_use` over "return JSON in your response". It's more reliable, easier to type, and the schema is self-documenting.
+
+### Which model supports what
+| Feature | Haiku | Sonnet | Opus |
+|---|---|---|---|
+| Basic completions | ✅ | ✅ | ✅ |
+| Tool use | ✅ | ✅ | ✅ |
+| Extended thinking | ❌ | ✅ | ✅ |
+| Best for | Fast/cheap tasks | Reasoning + planning | Most complex tasks |
+
+For scheduling (which requires genuine reasoning), Sonnet is the right call.
+
+---
+
 ## Bug journal — mistakes made and fixed
 
 ### Bug 1: Swift 6 data race errors on ViewModels
