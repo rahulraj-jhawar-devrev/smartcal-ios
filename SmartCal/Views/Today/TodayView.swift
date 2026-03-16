@@ -50,7 +50,7 @@ struct TodayView: View {
 
                 // Timeline or empty state
                 if let schedule = viewModel.schedule {
-                    TimelineView(schedule: schedule)
+                    CalendarKitDayView(blocks: schedule.blocks)
                 } else if !viewModel.isPlanning {
                     emptyState
                 } else {

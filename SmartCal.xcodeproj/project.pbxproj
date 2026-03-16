@@ -7,15 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		10BDFC1F5247848F3A6A759F /* CalendarKit in Frameworks */ = {isa = PBXBuildFile; productRef = 102357BD07BB1751408AECC0 /* CalendarKit */; };
 		16B84C7BC53722C3BF438BEC /* PlanViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7DD64FF9A216181DFB68B27 /* PlanViewModel.swift */; };
-		2BF47C62F7EA4B2A3236A591 /* BlockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FBD792916A0DC74CE81A19 /* BlockView.swift */; };
 		30268D1AF1EE3BFF03158C32 /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF4AD6AD8E420984F353EDAD /* TodayView.swift */; };
 		347DC1EFD464E63BE5A097FF /* Endpoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = A48369A949E0C6833741041E /* Endpoints.swift */; };
 		4FF48D362F7F825C1B3ABB63 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78BC57DDABBD085966DE0470 /* Task.swift */; };
 		5618980A42087D37A21DB1E6 /* SmartCalApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63A2092F97D5152982A92BEC /* SmartCalApp.swift */; };
 		5AEF7B7DDC47604640459927 /* AddTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E342A004B15C34927BC345A8 /* AddTaskView.swift */; };
 		5D94514608B2BF0C7B51EA93 /* ConstraintViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73990B9CC544BCD524B71A37 /* ConstraintViewModel.swift */; };
-		9106FB8B3BCCDDA33BE667D8 /* TimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1656AF4A63A9BBADC5BBEFB3 /* TimelineView.swift */; };
+		84FF9D52809B001997EA39E2 /* CalendarDayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37A8FDCD2CBA6E5122B2B773 /* CalendarDayViewController.swift */; };
+		8F5D16B2486E94BDC3637E98 /* CalendarKitDayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88D97CDC5159B76DFC2D4AF5 /* CalendarKitDayView.swift */; };
 		9DC3B44F713C6B1528FBCC01 /* Constraint.swift in Sources */ = {isa = PBXBuildFile; fileRef = B569984675B4E462F9E93CB5 /* Constraint.swift */; };
 		A6C55C42C9E249288611C909 /* TaskViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25041A4894CA85F1B86F0834 /* TaskViewModel.swift */; };
 		B305F9D86DA5D8C07C79BABD /* TasksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 676B38135FFA5385B0F66A75 /* TasksView.swift */; };
@@ -28,9 +29,9 @@
 
 /* Begin PBXFileReference section */
 		0D701EF362A9132DDA243456 /* SmartCal.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = SmartCal.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		1656AF4A63A9BBADC5BBEFB3 /* TimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineView.swift; sourceTree = "<group>"; };
 		25041A4894CA85F1B86F0834 /* TaskViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskViewModel.swift; sourceTree = "<group>"; };
 		3518DD7360F6D5D6C5CE4423 /* Schedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Schedule.swift; sourceTree = "<group>"; };
+		37A8FDCD2CBA6E5122B2B773 /* CalendarDayViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDayViewController.swift; sourceTree = "<group>"; };
 		4E97A0CF397A9D7B754CD505 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		5290969F2E0AC0713C3B7F57 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		5A40A85FD00789EB428B643D /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
@@ -38,15 +39,26 @@
 		676B38135FFA5385B0F66A75 /* TasksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksView.swift; sourceTree = "<group>"; };
 		73990B9CC544BCD524B71A37 /* ConstraintViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConstraintViewModel.swift; sourceTree = "<group>"; };
 		78BC57DDABBD085966DE0470 /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
+		88D97CDC5159B76DFC2D4AF5 /* CalendarKitDayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarKitDayView.swift; sourceTree = "<group>"; };
 		A48369A949E0C6833741041E /* Endpoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Endpoints.swift; sourceTree = "<group>"; };
 		AF4AD6AD8E420984F353EDAD /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
 		B420F5CBF6819A6435120319 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		B569984675B4E462F9E93CB5 /* Constraint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constraint.swift; sourceTree = "<group>"; };
 		D7DD64FF9A216181DFB68B27 /* PlanViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanViewModel.swift; sourceTree = "<group>"; };
-		D8FBD792916A0DC74CE81A19 /* BlockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockView.swift; sourceTree = "<group>"; };
 		E342A004B15C34927BC345A8 /* AddTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTaskView.swift; sourceTree = "<group>"; };
 		F4E08DAEDFD523C49FC57F95 /* ErrorBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorBanner.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		02B6E91DCC6534B3495616D1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				10BDFC1F5247848F3A6A759F /* CalendarKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		1674C75D977BCB54EB51E0E2 /* Views */ = {
@@ -137,8 +149,8 @@
 		DC02868C03F2D06AF789290E /* Today */ = {
 			isa = PBXGroup;
 			children = (
-				D8FBD792916A0DC74CE81A19 /* BlockView.swift */,
-				1656AF4A63A9BBADC5BBEFB3 /* TimelineView.swift */,
+				37A8FDCD2CBA6E5122B2B773 /* CalendarDayViewController.swift */,
+				88D97CDC5159B76DFC2D4AF5 /* CalendarKitDayView.swift */,
 				AF4AD6AD8E420984F353EDAD /* TodayView.swift */,
 			);
 			path = Today;
@@ -178,6 +190,7 @@
 			buildConfigurationList = 27219E118BE01EBBC5D61F39 /* Build configuration list for PBXNativeTarget "SmartCal" */;
 			buildPhases = (
 				8267B8B74E67CB537270DCAA /* Sources */,
+				02B6E91DCC6534B3495616D1 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -185,6 +198,7 @@
 			);
 			name = SmartCal;
 			packageProductDependencies = (
+				102357BD07BB1751408AECC0 /* CalendarKit */,
 			);
 			productName = SmartCal;
 			productReference = 0D701EF362A9132DDA243456 /* SmartCal.app */;
@@ -213,6 +227,9 @@
 			);
 			mainGroup = B2F299A2859AE6942C805C77;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				7B61900CC88C8F992D8EF8E2 /* XCRemoteSwiftPackageReference "CalendarKit" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = AF26FDADE73E3E595A6011A2 /* Products */;
 			projectDirPath = "";
@@ -230,7 +247,8 @@
 			files = (
 				FEAD55286A7E87E0A3D412E2 /* APIClient.swift in Sources */,
 				5AEF7B7DDC47604640459927 /* AddTaskView.swift in Sources */,
-				2BF47C62F7EA4B2A3236A591 /* BlockView.swift in Sources */,
+				84FF9D52809B001997EA39E2 /* CalendarDayViewController.swift in Sources */,
+				8F5D16B2486E94BDC3637E98 /* CalendarKitDayView.swift in Sources */,
 				9DC3B44F713C6B1528FBCC01 /* Constraint.swift in Sources */,
 				5D94514608B2BF0C7B51EA93 /* ConstraintViewModel.swift in Sources */,
 				347DC1EFD464E63BE5A097FF /* Endpoints.swift in Sources */,
@@ -243,7 +261,6 @@
 				4FF48D362F7F825C1B3ABB63 /* Task.swift in Sources */,
 				A6C55C42C9E249288611C909 /* TaskViewModel.swift in Sources */,
 				B305F9D86DA5D8C07C79BABD /* TasksView.swift in Sources */,
-				9106FB8B3BCCDDA33BE667D8 /* TimelineView.swift in Sources */,
 				30268D1AF1EE3BFF03158C32 /* TodayView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -430,6 +447,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		7B61900CC88C8F992D8EF8E2 /* XCRemoteSwiftPackageReference "CalendarKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/richardtop/CalendarKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		102357BD07BB1751408AECC0 /* CalendarKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7B61900CC88C8F992D8EF8E2 /* XCRemoteSwiftPackageReference "CalendarKit" */;
+			productName = CalendarKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 51A7BBA54EB555DD3E4EBD81 /* Project object */;
 }
