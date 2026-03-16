@@ -92,6 +92,8 @@ struct TodayView: View {
                 ForEach(vm.todayTasks) { task in
                     TodayTaskRow(task: task) {
                         Task { await vm.completeTask(id: task.id) }
+                    } onUncomplete: {
+                        Task { await vm.uncompleteTask(id: task.id) }
                     } onRemove: {
                         vm.toggleSelection(task.id)
                     }
@@ -161,19 +163,19 @@ struct TodayView: View {
 struct TodayTaskRow: View {
     let task: SCTask
     let onComplete: () -> Void
+    let onUncomplete: () -> Void
     let onRemove: () -> Void
 
     private var isDone: Bool { task.status == "done" }
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            Button(action: onComplete) {
+            Button(action: isDone ? onUncomplete : onComplete) {
                 Image(systemName: isDone ? "checkmark.circle.fill" : "circle")
                     .font(.title3)
                     .foregroundStyle(isDone ? .green : .secondary)
             }
             .buttonStyle(.plain)
-            .disabled(isDone)
             .padding(.top, 2)
 
             VStack(alignment: .leading, spacing: 3) {

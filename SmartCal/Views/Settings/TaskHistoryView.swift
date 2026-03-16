@@ -8,8 +8,7 @@ struct TaskHistoryView: View {
     var body: some View {
         Group {
             if isLoading && tasks.isEmpty {
-                ProgressView()
-                    .frame(maxHeight: .infinity)
+                ProgressView().frame(maxHeight: .infinity)
             } else if tasks.isEmpty {
                 ContentUnavailableView(
                     "No completed tasks",
@@ -18,8 +17,8 @@ struct TaskHistoryView: View {
                 )
             } else {
                 List {
-                    ForEach(groupedByPriority, id: \.0) { priority, group in
-                        Section(header: priorityHeader(priority)) {
+                    ForEach(groupedByDate, id: \.0) { dateLabel, group in
+                        Section(dateLabel) {
                             ForEach(group) { task in
                                 HistoryRow(task: task)
                             }
@@ -35,24 +34,40 @@ struct TaskHistoryView: View {
         .errorBanner(message: errorMessage) { errorMessage = nil }
     }
 
-    private var groupedByPriority: [(String, [SCTask])] {
-        let order = ["p0", "p1", "p2", "p3"]
-        return order.compactMap { p in
-            let group = tasks.filter { $0.priority == p }
-            return group.isEmpty ? nil : (p, group)
+    // Group by the calendar date of completedAt, newest first.
+    // Tasks without a completedAt date go in an "Earlier" bucket.
+    private var groupedByDate: [(String, [SCTask])] {
+        var buckets: [(String, [SCTask])] = []
+        var seen: [String: Int] = [:]  // dateLabel → index in buckets
+
+        for task in tasks {
+            let label = dateLabel(for: task.completedAt)
+            if let idx = seen[label] {
+                buckets[idx].1.append(task)
+            } else {
+                seen[label] = buckets.count
+                buckets.append((label, [task]))
+            }
         }
+        return buckets
     }
 
-    private func priorityHeader(_ priority: String) -> some View {
-        let (label, color): (String, Color) = switch priority {
-        case "p0": ("P0 — Critical", .red)
-        case "p1": ("P1 — High", .orange)
-        case "p2": ("P2 — Medium", .blue)
-        default:   ("P3 — Low", .secondary)
-        }
-        return Text(label)
-            .font(.footnote).fontWeight(.semibold)
-            .foregroundStyle(color)
+    private static let sqliteFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        f.timeZone = TimeZone(identifier: "UTC")
+        return f
+    }()
+
+    private func dateLabel(for completedAt: String?) -> String {
+        guard let raw = completedAt,
+              let date = Self.sqliteFormatter.date(from: raw) else { return "Earlier" }
+        let cal = Calendar.current
+        if cal.isDateInToday(date)     { return "Today" }
+        if cal.isDateInYesterday(date) { return "Yesterday" }
+        let f = DateFormatter()
+        f.dateFormat = "EEE d MMM"
+        return f.string(from: date)
     }
 
     private func load() async {
@@ -87,9 +102,11 @@ struct HistoryRow: View {
                         .foregroundStyle(.tertiary)
                         .lineLimit(1)
                 }
-                Text(formattedDuration(task.durationMins))
-                    .font(.caption)
-                    .foregroundStyle(.quaternary)
+                HStack(spacing: 8) {
+                    Text(formattedDuration(task.durationMins))
+                        .font(.caption).foregroundStyle(.quaternary)
+                    priorityBadge(task.priority)
+                }
             }
         }
         .padding(.vertical, 2)
@@ -101,4 +118,19 @@ struct HistoryRow: View {
         if m == 0 { return "\(h) hr" }
         return "\(h) hr \(m) min"
     }
+}
+
+private func priorityBadge(_ priority: String) -> some View {
+    let color: Color = switch priority {
+    case "p0": .red
+    case "p1": .orange
+    case "p2": .blue
+    default:   .secondary
+    }
+    return Text(priority.uppercased())
+        .font(.caption2).fontWeight(.semibold)
+        .padding(.horizontal, 6).padding(.vertical, 2)
+        .background(color.opacity(0.12))
+        .foregroundStyle(color)
+        .clipShape(Capsule())
 }

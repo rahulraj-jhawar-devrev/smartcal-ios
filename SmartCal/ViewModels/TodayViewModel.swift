@@ -46,6 +46,21 @@ class TodayViewModel {
         UserDefaults.standard.set(Array(selectedTaskIds), forKey: todayKey)
     }
 
+    func uncompleteTask(id: Int) async {
+        do {
+            let updated = try await APIClient.shared.updateTask(
+                id: id,
+                patch: TaskPatch(status: "pending", title: nil, notes: nil,
+                                 deadline: nil, durationMins: nil, priority: nil)
+            )
+            if let i = tasks.firstIndex(where: { $0.id == id }) {
+                tasks[i] = updated
+            }
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
     func completeTask(id: Int) async {
         do {
             let updated = try await APIClient.shared.updateTask(
