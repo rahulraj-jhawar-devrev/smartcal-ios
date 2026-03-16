@@ -1,6 +1,7 @@
 import Foundation
 import Observation
 
+@MainActor
 @Observable
 class TaskViewModel {
     var tasks: [SCTask] = []

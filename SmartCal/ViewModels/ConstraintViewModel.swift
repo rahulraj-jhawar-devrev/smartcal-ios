@@ -1,6 +1,7 @@
 import Foundation
 import Observation
 
+@MainActor
 @Observable
 class ConstraintViewModel {
     var constraints = Constraints.default
